@@ -10,7 +10,23 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, Postman, server-to-server)
+      // and allow everything if CORS_ORIGIN isn't set (local dev fallback).
+      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
+  })
+);
 app.use(express.json());
 
 app.get('/', (req, res) => {
