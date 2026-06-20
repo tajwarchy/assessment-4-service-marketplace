@@ -4,18 +4,12 @@ import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Marketplace from './pages/Marketplace';
+import ServiceDetail from './pages/ServiceDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
-
-function VendorDashboardPlaceholder() {
-  return <div className="max-w-5xl mx-auto mt-10 px-4 text-gray-500">Vendor dashboard — Phase 6</div>;
-}
-function AdminPlaceholder() {
-  return <div className="max-w-5xl mx-auto mt-10 px-4 text-gray-500">Admin panel — Phase 6</div>;
-}
-function MyBookingsPlaceholder() {
-  return <div className="max-w-5xl mx-auto mt-10 px-4 text-gray-500">My bookings — Phase 6</div>;
-}
+import MyBookings from './pages/MyBookings';
+import VendorDashboard from './pages/VendorDashboard';
+import AdminPanel from './pages/AdminPanel';
 
 export default function App() {
   return (
@@ -25,6 +19,7 @@ export default function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Marketplace />} />
+            <Route path="/services/:id" element={<ServiceDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
@@ -32,7 +27,7 @@ export default function App() {
               path="/my-bookings"
               element={
                 <ProtectedRoute roles={['USER']}>
-                  <MyBookingsPlaceholder />
+                  <MyBookings />
                 </ProtectedRoute>
               }
             />
@@ -40,7 +35,7 @@ export default function App() {
               path="/vendor/dashboard"
               element={
                 <ProtectedRoute roles={['VENDOR']}>
-                  <VendorDashboardPlaceholder />
+                  <VendorDashboard />
                 </ProtectedRoute>
               }
             />
@@ -48,7 +43,7 @@ export default function App() {
               path="/admin"
               element={
                 <ProtectedRoute roles={['ADMIN']}>
-                  <AdminPlaceholder />
+                  <AdminPanel />
                 </ProtectedRoute>
               }
             />
