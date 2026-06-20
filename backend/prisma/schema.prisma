@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+// Note: do not use the newer "prisma-client" generator with a custom output
+// path for this project — we use the classic "prisma-client-js" generator
+// so that `require('@prisma/client')` works consistently across the backend.
+
+enum Role {
+  ADMIN
+  VENDOR
+  USER
+}
+
+enum BookingStatus {
+  PENDING
+  PAID
+  FAILED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+
+  // If role = VENDOR, this links to their vendor profile
+  vendorProfile Vendor?
+
+  // If role = USER, these are their bookings
+  bookings Booking[]
+
+  @@map("users")
+}
+
+model Vendor {
+  id          String   @id @default(uuid())
+  businessName String
+  description String?
+  createdAt   DateTime @default(now())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  services Service[]
+
+  @@map("vendors")
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String @unique
+
+  services Service[]
+
+  @@map("categories")
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  bookings Booking[]
+
+  @@map("services")
+}
+
+model Booking {
+  id        String        @id @default(uuid())
+  status    BookingStatus @default(PENDING)
+  amount    Decimal       @db.Decimal(10, 2)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  transaction Transaction?
+
+  @@map("bookings")
+}
+
+// Simulated sandbox payment record — separate from Booking so we can
+// log mock gateway attempts (including failures) without losing booking history.
+model Transaction {
+  id            String   @id @default(uuid())
+  sandboxRef    String   @unique // mock gateway reference id, e.g. "SANDBOX-xxxx"
+  status        BookingStatus @default(PENDING)
+  amount        Decimal  @db.Decimal(10, 2)
+  method        String   @default("sandbox_card")
+  createdAt     DateTime @default(now())
+
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
