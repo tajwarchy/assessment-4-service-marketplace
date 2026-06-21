@@ -224,4 +224,4 @@ needing real payment credentials.
 
 - [Vibe coding workflow & AI-assistance reflection](./docs/VIBE_CODING_WORKFLOW.md)
 - [State management & route protection notes](./docs/ARCHITECTURE_NOTES.md)
-- Demo video: *(add your recorded link here before submission)*
+- Demo video: https://www.youtube.com/watch?v=xJulaXTKuUY 
